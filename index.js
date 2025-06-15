@@ -1,49 +1,47 @@
 /**
- * Generador de contraseñas interactivo en Node.js
+ * Interactive password generator in Node.js
  * 
- * Este script permite al usuario generar una contraseña segura de manera interactiva,
- * eligiendo la longitud y los tipos de caracteres a incluir (mayúsculas, minúsculas, números y símbolos).
- * Utiliza la librería 'crypto' para asegurar la aleatoriedad de la contraseña.
+ * This script allows the user to generate a secure password interactively,
+ * choosing the length and types of characters to include (uppercase, lowercase, numbers, and symbols).
+ * Uses the 'crypto' library to ensure password randomness.
  * 
- * Uso:
- *   Ejecuta el script con Node.js y responde a las preguntas en consola.
- * 
+ * Usage:
+ *   Run the script with Node.js and answer the questions in the console.
  */
 
-const crypto = require("crypto"); // Módulo para generación segura de números aleatorios
-const readline = require("readline"); // Módulo para entrada/salida por consola
-const fs = require("fs"); // Módulo para manipulación de archivos
-const { json } = require("stream/consumers");
+const crypto = require("crypto"); // Secure random number generation
+const readline = require("readline"); // Console input/output
+const fs = require("fs"); // File manipulation
 
-console.clear(); // Limpia la consola al iniciar
+console.clear(); // Clear the console at start
 
-// Configura la interfaz de lectura de consola
+// Configure the console reading interface
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
 /**
- * Genera una contraseña aleatoria según la longitud y el conjunto de caracteres dados.
+ * Generates a random password based on the given length and character set.
  * 
- * @param {number} longitud - Longitud deseada de la contraseña.
- * @param {string} caracteres - Cadena con todos los caracteres posibles a usar.
- * @returns {string} Contraseña generada.
+ * @param {number} longitud - Desired password length.
+ * @param {string} caracteres - String with all possible characters to use.
+ * @returns {string} Generated password.
  */
 function generarPassword(longitud, caracteres) {
   let password = "";
   for (let i = 0; i < longitud; i++) {
-    const index = crypto.randomInt(0, caracteres.length); // Selecciona un índice aleatorio seguro
+    const index = crypto.randomInt(0, caracteres.length); // Secure random index
     password += caracteres[index];
   }
   return password;
 }
 
 /**
- * Realiza una pregunta al usuario y devuelve la respuesta como promesa.
+ * Asks a question to the user and returns the answer as a promise.
  * 
- * @param {string} texto - Texto de la pregunta a mostrar.
- * @returns {Promise<string>} Respuesta del usuario.
+ * @param {string} texto - The question to display.
+ * @returns {Promise<string>} User's answer.
  */
 function pregunta(texto) {
   return new Promise(resolve => {
@@ -51,45 +49,88 @@ function pregunta(texto) {
   });
 }
 
+// Message dictionary for internationalization
+const mensajes = {
+  es: {
+    titulo: "🔐 Generador de contraseñas interactivo\n",
+    longitud: "¿Cuántos caracteres quieres? (default 12): ",
+    mayus: "¿Incluir mayúsculas? (s/n): ",
+    minus: "¿Incluir minúsculas? (s/n): ",
+    nums: "¿Incluir números? (s/n): ",
+    simbolos: "¿Incluir símbolos? (s/n): ",
+    errorTipo: "❌ Debes elegir al menos un tipo de carácter.",
+    exportar: "\n¿Desea exportar la contraseña a un archivo JSON (s/n)? »» ",
+    generada: "\n✅ Contraseña generada:",
+    guardada: "Contraseña guardada en password.json\n"
+  },
+  en: {
+    titulo: "🔐 Interactive password generator\n",
+    longitud: "How many characters? (default 12): ",
+    mayus: "Include uppercase letters? (y/n): ",
+    minus: "Include lowercase letters? (y/n): ",
+    nums: "Include numbers? (y/n): ",
+    simbolos: "Include symbols? (y/n): ",
+    errorTipo: "❌ You must choose at least one character type.",
+    exportar: "\nExport password to JSON file? (y/n): ",
+    generada: "\n✅ Password generated:",
+    guardada: "Password saved to password.json\n"
+  }
+};
+
+// Language selection
+let idioma = "es"; // Default Spanish
+
 /**
- * Función principal que ejecuta el flujo interactivo del generador de contraseñas.
+ * Prompts the user to select a language.
+ * Sets the global 'idioma' variable.
+ * @returns {Promise<void>}
+ */
+async function seleccionarIdioma() {
+  const lang = await pregunta("Idioma / Language (es/en, default es): ");
+  if (lang.toLowerCase() === "en") idioma = "en";
+}
+
+/**
+ * Main function that runs the interactive password generator flow.
+ * @returns {Promise<void>}
  */
 async function main() {
-  console.log("🔐 Generador de contraseñas interactivo\n");
+  await seleccionarIdioma();
+  console.log(mensajes[idioma].titulo);
 
-  // Pregunta la longitud de la contraseña
-  let lengthStr = await pregunta("¿Cuántos caracteres quieres? (default 12): ");
+  // Ask for password length
+  let lengthStr = await pregunta(mensajes[idioma].longitud);
   let length = parseInt(lengthStr);
   if (isNaN(length) || length < 1) length = 12;
 
-  // Pregunta qué tipos de caracteres incluir
-  const mayus = await pregunta("¿Incluir mayúsculas? (s/n): ");
-  const minus = await pregunta("¿Incluir minúsculas? (s/n): ");
-  const nums = await pregunta("¿Incluir números? (s/n): ");
-  const simbolos = await pregunta("¿Incluir símbolos? (s/n): ");
+  // Ask which character types to include
+  const mayus = await pregunta(mensajes[idioma].mayus);
+  const minus = await pregunta(mensajes[idioma].minus);
+  const nums = await pregunta(mensajes[idioma].nums);
+  const simbolos = await pregunta(mensajes[idioma].simbolos);
 
-  // Construye el conjunto de caracteres según las respuestas
+  // Build the character set based on answers
   let caracteres = "";
-  if (mayus.toLowerCase() === "s") caracteres += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  if (minus.toLowerCase() === "s") caracteres += "abcdefghijklmnopqrstuvwxyz";
-  if (nums.toLowerCase() === "s") caracteres += "0123456789";
-  if (simbolos.toLowerCase() === "s") caracteres += "!@#$%^&*()_+-=[]{};:,.<>?";
+  if (mayus.toLowerCase() === (idioma === "es" ? "s" : "y")) caracteres += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  if (minus.toLowerCase() === (idioma === "es" ? "s" : "y")) caracteres += "abcdefghijklmnopqrstuvwxyz";
+  if (nums.toLowerCase() === (idioma === "es" ? "s" : "y")) caracteres += "0123456789";
+  if (simbolos.toLowerCase() === (idioma === "es" ? "s" : "y")) caracteres += "!@#$%^&*()_+-=[]{};:,.<>?";
 
-  // Verifica que al menos un tipo de carácter haya sido seleccionado
+  // Ensure at least one character type is selected
   if (!caracteres) {
-    console.log("❌ Debes elegir al menos un tipo de carácter.");
+    console.log(mensajes[idioma].errorTipo);
     rl.close();
     return;
   }
 
-  // Genera y muestra la contraseña
+  // Generate and display the password
   const password = generarPassword(length, caracteres);
 
-  const exportPassword = await pregunta('\n¿Desea exportar la contraseña a un archivo JSON (s/n)? »» ')
+  const exportPassword = await pregunta(mensajes[idioma].exportar);
 
-  if(exportPassword.toLowerCase() === "s") jsonExport(password);
+  if(exportPassword.toLowerCase() === (idioma === "es" ? "s" : "y")) jsonExport(password);
 
-  console.log("\n✅ Contraseña generada:");
+  console.log(mensajes[idioma].generada);
   console.log(password);
   console.log();
 
@@ -97,22 +138,22 @@ async function main() {
 }
 
 /**
- * Exporta la contraseña generada a un archivo JSON, agregándola a una lista de contraseñas existentes.
- * Si el archivo no existe, lo crea. Si existe, añade la nueva contraseña al arreglo.
+ * Exports the generated password to a JSON file, adding it to a list of existing passwords.
+ * If the file does not exist, it creates it. If it exists, adds the new password to the array.
  * 
- * @param {string} password - Contraseña generada a guardar.
+ * @param {string} password - Generated password to save.
  */
 function jsonExport(password) {
     fs.readFile("password.json", (err, data) => {
         let existingData = { passwords: [] };
 
-        // Si hay error distinto a archivo no encontrado, mostrarlo
+        // If error is not file not found, show it
         if (err && err.code !== 'ENOENT') {
-            console.error("Error al leer el archivo password.json:", err);
+            console.error("Error reading password.json:", err);
             return;
         }
 
-        // Si hay datos, intentar parsear el JSON y obtener el arreglo de contraseñas
+        // If data exists, try to parse JSON and get the passwords array
         if (data) {
             try {
                 existingData = JSON.parse(data);
@@ -120,24 +161,24 @@ function jsonExport(password) {
                     existingData.passwords = [];
                 }
             } catch (parseError) {
-                console.error("Error al parsear el archivo JSON:", parseError);
+                console.error("Error parsing JSON file:", parseError);
                 return;
             }
         }
 
-        // Añade la nueva contraseña al arreglo
+        // Add the new password to the array
         existingData.passwords.push(password);
 
-        // Guarda el objeto actualizado en el archivo JSON
+        // Save the updated object to the JSON file
         fs.writeFile("password.json", JSON.stringify(existingData, null, 2), (writeErr) => {
             if (writeErr) {
-                console.error("Error al guardar la contraseña en JSON:", writeErr);
+                console.error("Error saving password to JSON:", writeErr);
             } else {
-                console.log("Contraseña guardada en password.json\n");
+                console.log(mensajes[idioma].guardada);
             }
         });
     });
 }
 
-// Ejecuta el programa principal
+// Run the main program
 main();
