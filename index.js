@@ -78,7 +78,7 @@ const mensajes = {
 };
 
 // Language selection
-let idioma = "es"; // Default Spanish
+let idioma = "en"; // Default Spanish
 
 /**
  * Prompts the user to select a language.
@@ -86,7 +86,7 @@ let idioma = "es"; // Default Spanish
  * @returns {Promise<void>}
  */
 async function seleccionarIdioma() {
-  const lang = await pregunta("Idioma / Language (es/en, default es): ");
+  const lang = await pregunta("Idioma/Language (es/en) [Default: en]: ");
   if (lang.toLowerCase() === "en") idioma = "en";
 }
 
