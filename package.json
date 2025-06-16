@@ -1,14 +1,15 @@
 {
-  "name": "proyecto1",
-  "version": "1.0.0",
+  "name": "passwordunit",
+  "version": "1.0.1",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "gromber05",
   "license": "ISC",
-  "description": "",
+  "description": "A simple Node.js CLI tool to generate secure passwords interactively, supporting English and Spanish.",
   "dependencies": {
     "fs": "^0.0.1-security"
-  }
+  },
+  "devDependencies": {}
 }
