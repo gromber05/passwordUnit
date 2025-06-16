@@ -170,7 +170,7 @@ function jsonExport(password) {
         existingData.passwords.push(password);
 
         // Save the updated object to the JSON file
-        fs.writeFile("password.json", JSON.stringify(existingData, null, 2), (writeErr) => {
+        fs.writeFile("build/password.json", JSON.stringify(existingData, null, 2), (writeErr) => {
             if (writeErr) {
                 console.error("Error saving password to JSON:", writeErr);
             } else {

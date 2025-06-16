@@ -21,14 +21,14 @@ A simple Node.js CLI tool to generate secure passwords interactively, supporting
 3. Run the script:
 
    ```bash
-   node index.js
+   node src/index.js
    ```
 
 4. Follow the prompts to select language, password options, and whether to export the password.
 
 ## Exported Passwords
 
-If you choose to export, passwords are saved in `password.json` as an array:
+If you choose to export, passwords are saved in `build/password.json` as an array:
 
 ```json
 {
