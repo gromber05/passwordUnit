@@ -13,6 +13,11 @@ A simple Node.js CLI tool to generate secure passwords interactively, supporting
 
 1. Install Node.js (v14+ recommended)
 2. Clone this repository
+
+  ```bash
+  git clone https://github.com/gromber05/passwordUnit.git
+  ```
+
 3. Run the script:
 
    ```bash
