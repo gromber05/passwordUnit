@@ -12,7 +12,7 @@
 const crypto = require("crypto"); // Secure random number generation
 const readline = require("readline"); // Console input/output
 const fs = require("fs"); // File manipulation
-const bcrypt = require("bcryptjs"); // Password encrypter
+const encrypter = require("./encrypt")
 
 console.clear(); // Clear the console at start
 
@@ -146,17 +146,17 @@ async function main() {
  * @param {string} password - Generated password to save.
  */
 function jsonExport(password) {
-    fs.readFile("password.json", (err, data) => {
+    fs.readFile("build/password.json", (err, data) => {
         let existingData = { passwords: [] };
 
         // If error is not file not found, show it
         if (err && err.code !== 'ENOENT') {
-            console.error("Error reading password.json:", err);
+            console.error("Error reading build/password.json:", err);
             return;
         }
 
         // If data exists, try to parse JSON and get the passwords array
-        if (data) {
+        if (data && data.length > 0) {
             try {
                 existingData = JSON.parse(data);
                 if (!Array.isArray(existingData.passwords)) {
@@ -169,7 +169,7 @@ function jsonExport(password) {
         }
 
         // Add the new password to the array
-        existingData.passwords.push(encrypt(password));
+        existingData.passwords.push(encrypter.encrypt(password));
 
         // Save the updated object to the JSON file
         fs.writeFile("build/password.json", JSON.stringify(existingData, null, 2), (writeErr) => {
@@ -180,16 +180,6 @@ function jsonExport(password) {
             }
         });
     });
-}
-
-/**
- * Encrypts the given password.
- * 
- * @param {string} password - Generated password to encrypt.
- * @returns {string} - The encrypted password
- */
-function encrypt(password) {
-  return hashedPassword = bcrypt.hashSync(password, 10);
 }
 
 // Run the main program
