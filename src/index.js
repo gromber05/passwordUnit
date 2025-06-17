@@ -12,7 +12,7 @@
 const crypto = require("crypto"); // Secure random number generation
 const readline = require("readline"); // Console input/output
 const fs = require("fs"); // File manipulation
-const encrypter = require("bcryptjs"); // Password encrypter
+const bcrypt = require("bcryptjs"); // Password encrypter
 
 console.clear(); // Clear the console at start
 
