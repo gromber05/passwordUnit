@@ -8,6 +8,7 @@ A simple Node.js CLI tool to generate secure passwords interactively, supporting
 - Secure random generation using Node's `crypto` module
 - Internationalization: English and Spanish support
 - Optionally export generated passwords to a JSON file (`password.json`)
+- **Passwords are saved encrypted for security**
 
 ## Usage
 
@@ -28,13 +29,13 @@ A simple Node.js CLI tool to generate secure passwords interactively, supporting
 
 ## Exported Passwords
 
-If you choose to export, passwords are saved in `build/password.json` as an array:
+If you choose to export, passwords are saved encrypted in `build/password.json` as an array:
 
 ```json
 {
   "passwords": [
-    "examplePassword1",
-    "examplePassword2"
+    "<encryptedPassword1>",
+    "<encryptedPassword2>"
   ]
 }
 ```
