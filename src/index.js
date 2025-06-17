@@ -88,7 +88,8 @@ let idioma = "en"; // Default Spanish
  */
 async function seleccionarIdioma() {
   const lang = await pregunta("Idioma/Language (es/en) [Default: en]: ");
-  if (lang.toLowerCase() === "en") idioma = "en";
+  if (lang.toLowerCase() === "en") idioma = "en"
+  else if (lang.toLocaleLowerCase() === "es") idioma = "es";
 }
 
 /**
