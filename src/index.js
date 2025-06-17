@@ -12,6 +12,7 @@
 const crypto = require("crypto"); // Secure random number generation
 const readline = require("readline"); // Console input/output
 const fs = require("fs"); // File manipulation
+const encrypter = require("bcryptjs"); // Password encrypter
 
 console.clear(); // Clear the console at start
 
@@ -167,7 +168,7 @@ function jsonExport(password) {
         }
 
         // Add the new password to the array
-        existingData.passwords.push(password);
+        existingData.passwords.push(encrypt(password));
 
         // Save the updated object to the JSON file
         fs.writeFile("build/password.json", JSON.stringify(existingData, null, 2), (writeErr) => {
@@ -178,6 +179,16 @@ function jsonExport(password) {
             }
         });
     });
+}
+
+/**
+ * Encrypts the given password.
+ * 
+ * @param {string} password - Generated password to encrypt.
+ * @returns {string} - The encrypted password
+ */
+function encrypt(password) {
+  return hashedPassword = bcrypt.hashSync(password, 10);
 }
 
 // Run the main program

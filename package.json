@@ -9,7 +9,7 @@
   "license": "ISC",
   "description": "A simple Node.js CLI tool to generate secure passwords interactively, supporting English and Spanish.",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "fs": "^0.0.1-security"
-  },
-  "devDependencies": {}
+  }
 }
