@@ -12,5 +12,4 @@ function encrypt(password) {
 
 module.exports = {
     encrypt,
-    decrypt
 }
