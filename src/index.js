@@ -12,7 +12,8 @@
 import crypto from "crypto"; // Secure random number generation
 import readline from "readline"; // Console input/output
 import fs from "fs"; // File manipulation
-import encrypter from "./encrypt" assert { type: "module" };
+import encrypter from "./encrypt.js";
+import { exit } from "process";
 
 console.clear(); // Clear the console at start
 
@@ -62,7 +63,8 @@ const mensajes = {
     errorTipo: "❌ Debes elegir al menos un tipo de carácter.",
     exportar: "\n¿Desea exportar la contraseña a un archivo JSON (s/n)? »» ",
     generada: "\n✅ Contraseña generada:",
-    guardada: "Contraseña guardada en password.json\n"
+    guardada: "Contraseña guardada en password.json\n",
+    seleccion: "Selecciona una opción:\n1. Generar nueva contraseña\n2. Ver contraseñas guardadas\n3. Salir\nOpción: "
   },
   en: {
     titulo: "🔐 Interactive password generator\n",
@@ -74,7 +76,8 @@ const mensajes = {
     errorTipo: "❌ You must choose at least one character type.",
     exportar: "\nExport password to JSON file? (y/n): ",
     generada: "\n✅ Password generated:",
-    guardada: "Password saved to password.json\n"
+    guardada: "Password saved to password.json\n",
+    seleccion: "Select an option:\n1. Generate new password\n2. View saved passwords\n3. Exit\nOption: "
   }
 };
 
@@ -92,12 +95,39 @@ async function seleccionarIdioma() {
   else if (lang.toLocaleLowerCase() === "es") idioma = "es";
 }
 
+async function viewSavedPasswords() {
+  console.clear();
+  const filePath = "build/password.json";
+  if (!fs.existsSync(filePath)) {
+    console.log(idioma === "es" ? "No hay contraseñas guardadas aún.\n" : "No saved passwords yet.\n");
+    rl.close();
+    return;
+  }
+
+  try {
+    const data = fs.readFileSync(filePath, "utf-8");
+    const parsed = JSON.parse(data);
+    if (!parsed.passwords || parsed.passwords.length === 0) {
+      console.log(idioma === "es" ? "No hay contraseñas guardadas aún.\n" : "No saved passwords yet.\n");
+    } else {
+      console.log(idioma === "es" ? "\n🔒 Contraseñas guardadas (encriptadas):" : "\n🔒 Saved passwords (encrypted):");
+      parsed.passwords.forEach((pw, idx) => {
+        console.log(`${idx + 1}. ${pw}`);
+      });
+      console.log();
+    }
+  } catch (err) {
+    console.error(idioma === "es" ? "Error al leer el archivo de contraseñas." : "Error reading password file.", err);
+  }
+  rl.close();
+}
+
 /**
- * Main function that runs the interactive password generator flow.
+ * Runs the interactive password generator flow.
  * @returns {Promise<void>}
  */
-async function main() {
-  await seleccionarIdioma();
+async function runPasswordGenerator() {
+  console.clear();
   console.log(mensajes[idioma].titulo);
 
   // Ask for password length
@@ -137,6 +167,21 @@ async function main() {
   console.log();
 
   rl.close();
+}
+
+/**
+ * Main function (menu placeholder).
+ * @returns {Promise<void>}
+ */
+async function main() {
+  await seleccionarIdioma();
+  const question = await pregunta(mensajes[idioma].seleccion);
+
+  if (question === "1") runPasswordGenerator();
+  else if (question === "2") viewSavedPasswords();
+  else if (question === "3") exit();
+
+  return;
 }
 
 /**
