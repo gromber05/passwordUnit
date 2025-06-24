@@ -95,9 +95,19 @@ async function seleccionarIdioma() {
   else if (lang.toLocaleLowerCase() === "es") idioma = "es";
 }
 
+/**
+ * Displays the list of saved (encrypted) passwords from the JSON file.
+ * If the file does not exist or is empty, shows a message to the user.
+ * Handles errors gracefully and closes the readline interface at the end.
+ *
+ * @async
+ * @function
+ * @returns {Promise<void>} Resolves when passwords have been displayed or an error/message has been shown.
+ */
 async function viewSavedPasswords() {
   console.clear();
   const filePath = "build/password.json";
+  // Check if the password file exists
   if (!fs.existsSync(filePath)) {
     console.log(idioma === "es" ? "No hay contraseñas guardadas aún.\n" : "No saved passwords yet.\n");
     rl.close();
@@ -105,11 +115,14 @@ async function viewSavedPasswords() {
   }
 
   try {
+    // Read and parse the JSON file
     const data = fs.readFileSync(filePath, "utf-8");
     const parsed = JSON.parse(data);
+    // Check if there are any saved passwords
     if (!parsed.passwords || parsed.passwords.length === 0) {
       console.log(idioma === "es" ? "No hay contraseñas guardadas aún.\n" : "No saved passwords yet.\n");
     } else {
+      // Display the list of encrypted passwords
       console.log(idioma === "es" ? "\n🔒 Contraseñas guardadas (encriptadas):" : "\n🔒 Saved passwords (encrypted):");
       parsed.passwords.forEach((pw, idx) => {
         console.log(`${idx + 1}. ${pw}`);
@@ -117,6 +130,7 @@ async function viewSavedPasswords() {
       console.log();
     }
   } catch (err) {
+    // Handle JSON parsing or file reading errors
     console.error(idioma === "es" ? "Error al leer el archivo de contraseñas." : "Error reading password file.", err);
   }
   rl.close();
@@ -125,6 +139,16 @@ async function viewSavedPasswords() {
 /**
  * Runs the interactive password generator flow.
  * @returns {Promise<void>}
+ */
+/**
+ * Interactively generates a password based on user input for length and character types.
+ * Prompts the user for password length, character types to include (uppercase, lowercase, numbers, symbols),
+ * and whether to export the generated password. Displays the generated password and optionally exports it.
+ * Handles input validation and ensures at least one character type is selected.
+ *
+ * @async
+ * @function
+ * @returns {Promise<void>} Resolves when the password has been generated and displayed/exported.
  */
 async function runPasswordGenerator() {
   console.clear();
