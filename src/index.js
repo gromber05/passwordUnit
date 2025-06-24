@@ -14,7 +14,6 @@ import readline from "readline"; // Console input/output
 import fs from "fs"; // File manipulation
 import * as encrypter from "./encrypt.js";
 import { exit } from "process";
-import { clear } from "console";
 
 console.clear(); // Clear the console at start
 
@@ -65,7 +64,7 @@ const mensajes = {
     exportar: "\n¿Desea exportar la contraseña a un archivo JSON (s/n)? »» ",
     generada: "\n✅ Contraseña generada:",
     guardada: "Contraseña guardada en password.json\n",
-    seleccion: "Selecciona una opción:\n1. Generar nueva contraseña\n2. Ver contraseñas guardadas\n3. Salir\nOpción: "
+    seleccion: "Selecciona una opción:\n1. Generar nueva contraseña\n2. Ver contraseñas guardadas\n3. Salir\n4. Borrar archivo de contraseñas\nOpción »» "
   },
   en: {
     titulo: "🔐 Interactive password generator\n",
@@ -78,7 +77,7 @@ const mensajes = {
     exportar: "\nExport password to JSON file? (y/n): ",
     generada: "\n✅ Password generated:",
     guardada: "Password saved to password.json\n",
-    seleccion: "Select an option:\n1. Generate new password\n2. View saved passwords\n3. Exit\nOption: "
+    seleccion: "Select an option:\n1. Generate new password\n2. View saved passwords\n3. Exit\n4. Erase passwords's file\nOption »»  "
   }
 };
 
@@ -203,7 +202,7 @@ async function main() {
   await seleccionarIdioma();
   let exitMenu = false;
   while (!exitMenu) {
-    console.clear()
+    console.clear();
     const question = await pregunta(mensajes[idioma].seleccion);
     if (question === "1") await runPasswordGenerator();
     else if (question === "2") await viewSavedPasswords();
@@ -211,6 +210,16 @@ async function main() {
       exitMenu = true;
       rl.close();
       exit();
+    }
+    else if (question === "4") {
+      fs.unlink("build/password.json", (err) => {
+        if (err) {
+          console.log(idioma === "es" ? "No se pudo borrar el archivo o no existe." : "Could not delete the file or it does not exist.");
+        } else {
+          console.log(idioma === "es" ? "Archivo de contraseñas borrado correctamente." : "Password file deleted successfully.");
+        }
+      });
+      await sleep(2000);
     }
   }
   rl.close();
