@@ -12,8 +12,9 @@
 import crypto from "crypto"; // Secure random number generation
 import readline from "readline"; // Console input/output
 import fs from "fs"; // File manipulation
-import encrypter from "./encrypt.js";
+import * as encrypter from "./encrypt.js";
 import { exit } from "process";
+import { clear } from "console";
 
 console.clear(); // Clear the console at start
 
@@ -110,7 +111,7 @@ async function viewSavedPasswords() {
   // Check if the password file exists
   if (!fs.existsSync(filePath)) {
     console.log(idioma === "es" ? "No hay contraseñas guardadas aún.\n" : "No saved passwords yet.\n");
-    rl.close();
+    await sleep(4000);
     return;
   }
 
@@ -125,7 +126,8 @@ async function viewSavedPasswords() {
       // Display the list of encrypted passwords
       console.log(idioma === "es" ? "\n🔒 Contraseñas guardadas (encriptadas):" : "\n🔒 Saved passwords (encrypted):");
       parsed.passwords.forEach((pw, idx) => {
-        console.log(`${idx + 1}. ${pw}`);
+        let decryptedPassword = encrypter.decrypt(pw)
+        console.log(`${idx + 1}. ${decryptedPassword}`);
       });
       console.log();
     }
@@ -133,7 +135,7 @@ async function viewSavedPasswords() {
     // Handle JSON parsing or file reading errors
     console.error(idioma === "es" ? "Error al leer el archivo de contraseñas." : "Error reading password file.", err);
   }
-  rl.close();
+  await sleep(4000);
 }
 
 /**
@@ -150,6 +152,7 @@ async function viewSavedPasswords() {
  * @function
  * @returns {Promise<void>} Resolves when the password has been generated and displayed/exported.
  */
+
 async function runPasswordGenerator() {
   console.clear();
   console.log(mensajes[idioma].titulo);
@@ -175,7 +178,7 @@ async function runPasswordGenerator() {
   // Ensure at least one character type is selected
   if (!caracteres) {
     console.log(mensajes[idioma].errorTipo);
-    rl.close();
+    await sleep(4000);
     return;
   }
 
@@ -189,29 +192,31 @@ async function runPasswordGenerator() {
   console.log(mensajes[idioma].generada);
   console.log(password);
   console.log();
-
-  rl.close();
+  await sleep(4000);
 }
 
-/**
+/*
  * Main function (menu placeholder).
  * @returns {Promise<void>}
  */
 async function main() {
   await seleccionarIdioma();
-  const question = await pregunta(mensajes[idioma].seleccion);
-
-  if (question === "1") runPasswordGenerator();
-  else if (question === "2") viewSavedPasswords();
-  else if (question === "3") exit();
-
+  let exitMenu = false;
+  while (!exitMenu) {
+    console.clear()
+    const question = await pregunta(mensajes[idioma].seleccion);
+    if (question === "1") await runPasswordGenerator();
+    else if (question === "2") await viewSavedPasswords();
+    else if (question === "3") {
+      exitMenu = true;
+      rl.close();
+      exit();
+    }
+  }
+  rl.close();
   return;
 }
-
-/**
- * Exports the generated password to a JSON file, adding it to a list of existing passwords.
- * If the file does not exist, it creates it. If it exists, adds the new password to the array.
- * 
+/*
  * @param {string} password - Generated password to save.
  */
 function jsonExport(password) {
@@ -249,6 +254,15 @@ function jsonExport(password) {
             }
         });
     });
+}
+
+/**
+ * Sleeps for a given number of milliseconds.
+ * @param {number} ms - Milliseconds to sleep.
+ * @returns {Promise<void>} Resolves after the specified time.
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 // Run the main program
