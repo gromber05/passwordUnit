@@ -9,10 +9,10 @@
  *   Run the script with Node.js and answer the questions in the console.
  */
 
-const crypto = require("crypto"); // Secure random number generation
-const readline = require("readline"); // Console input/output
-const fs = require("fs"); // File manipulation
-const encrypter = require("./encrypt")
+import crypto from "crypto"; // Secure random number generation
+import readline from "readline"; // Console input/output
+import fs from "fs"; // File manipulation
+import encrypter from "./encrypt" assert { type: "module" };
 
 console.clear(); // Clear the console at start
 
