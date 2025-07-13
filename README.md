@@ -9,6 +9,8 @@ A simple Node.js CLI tool to generate secure passwords interactively, supporting
 - Internationalization: English and Spanish support
 - Optionally export generated passwords to a JSON file (`password.json`)
 - **Passwords are saved encrypted for security**
+- Export all saved passwords to a CSV file (`passwords.csv`) with decrypted values
+- Menu option to delete both JSON and CSV password files
 
 ## Usage
 
@@ -25,7 +27,12 @@ A simple Node.js CLI tool to generate secure passwords interactively, supporting
    node src/index.js
    ```
 
-4. Follow the prompts to select language, password options, and whether to export the password.
+4. Follow the prompts to select language, password options, and menu actions:
+   - Generate new password
+   - View saved passwords
+   - Erase password file(s)
+   - Export passwords to CSV
+   - Exit
 
 ## Exported Passwords
 
@@ -38,6 +45,16 @@ If you choose to export, passwords are saved encrypted in `build/password.json` 
     "<encryptedPassword2>"
   ]
 }
+```
+
+## Export to CSV
+
+You can export all saved passwords to a CSV file (`build/passwords.csv`). The CSV will contain the decrypted passwords, one per line:
+
+```
+password
+myPassword1
+myPassword2
 ```
 
 ## Internationalization
