@@ -64,7 +64,7 @@ const mensajes = {
         exportar: "\n¿Desea exportar la contraseña a un archivo JSON (s/n)? »» ",
         generada: "\n✅ Contraseña generada:",
         guardada: "Contraseña guardada en password.json\n",
-        seleccion: "Selecciona una opción:\n1. Generar nueva contraseña\n2. Ver contraseñas guardadas\n3. Salir\n4. Borrar archivo de contraseñas\nOpción »» "
+        seleccion: "Selecciona una opción:\n1. Generar nueva contraseña\n2. Ver contraseñas guardadas\n3. Borrar archivo de contraseñas\n4. Exportar contraseñas a CSV\n5. Salir\nOpción »» "
     },
     en: {
         titulo: "🔐 Interactive password generator\n",
@@ -77,7 +77,7 @@ const mensajes = {
         exportar: "\nExport password to JSON file? (y/n): ",
         generada: "\n✅ Password generated:",
         guardada: "Password saved to password.json\n",
-        seleccion: "Select an option:\n1. Generate new password\n2. View saved passwords\n3. Exit\n4. Erase passwords's file\nOption »»  "
+        seleccion: "Select an option:\n1. Generate new password\n2. View saved passwords\n3. Erase passwords's file\n4. Export passwords to CSV\n5. Exit\nOption »»  "
     }
 };
 
@@ -190,6 +190,41 @@ async function runPasswordGenerator() {
 }
 
 /**
+ * Exports all saved passwords to a CSV file (build/passwords.csv).
+ * Each line contains the decrypted password.
+ */
+async function exportPasswordsToCSV() {
+    const filePath = "build/password.json";
+    const csvPath = "build/passwords.csv";
+    if (!fs.existsSync(filePath)) {
+        console.log(idioma === "es" ? "No hay contraseñas guardadas para exportar." : "No saved passwords to export.");
+        await sleep(2000);
+        return;
+    }
+    try {
+        const data = fs.readFileSync(filePath, "utf-8");
+        const parsed = JSON.parse(data);
+        if (!parsed.passwords || parsed.passwords.length === 0) {
+            console.log(idioma === "es" ? "No hay contraseñas guardadas para exportar." : "No saved passwords to export.");
+            await sleep(2000);
+            return;
+        }
+        // Prepare CSV content
+        let csvContent = "password\n";
+        parsed.passwords.forEach((pw) => {
+            let decrypted = encrypter.decrypt(pw);
+            csvContent += `${decrypted}\n`;
+        });
+        fs.writeFileSync(csvPath, csvContent);
+        console.log(idioma === "es" ? "Contraseñas exportadas a build/passwords.csv" : "Passwords exported to build/passwords.csv");
+        await sleep(2000);
+    } catch (err) {
+        console.error(idioma === "es" ? "Error al exportar a CSV." : "Error exporting to CSV.", err);
+        await sleep(2000);
+    }
+}
+
+/**
  * Main function (menu placeholder).
  * @returns {Promise<void>}
  */
@@ -202,11 +237,6 @@ async function main() {
         if (question === "1") await runPasswordGenerator();
         else if (question === "2") await viewSavedPasswords();
         else if (question === "3") {
-            exitMenu = true;
-            rl.close();
-            exit();
-        }
-        else if (question === "4") {
             fs.unlink("build/password.json", (err) => {
                 if (err) {
                     console.log(idioma === "es" ? "No se pudo borrar el archivo o no existe." : "Could not delete the file or it does not exist.");
@@ -214,7 +244,22 @@ async function main() {
                     console.log(idioma === "es" ? "Archivo de contraseñas borrado correctamente." : "Password file deleted successfully.");
                 }
             });
+            fs.unlink("build/passwords.csv", (err) => {
+                if (err) {
+                    console.log(idioma === "es" ? "No se pudo borrar el archivo de contraseñas CSV o no existe." : "Could not delete the file or it does not exist.");
+                } else {
+                    console.log(idioma === "es" ? "Archivo de contraseñas CSV borrado correctamente." : "Password file deleted successfully.");
+                }
+            });
             await sleep(2000);
+        }
+        else if (question === "4") {
+            await exportPasswordsToCSV();
+        }
+        else if (question === "5") {
+            exitMenu = true;
+            rl.close();
+            exit();
         }
     }
     rl.close();
